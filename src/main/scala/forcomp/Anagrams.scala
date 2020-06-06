@@ -1,5 +1,7 @@
 package forcomp
 
+import scala.io.Source
+
 object Anagrams extends AnagramsInterface {
 
   /** A word is simply a `String`. */
@@ -35,7 +37,7 @@ object Anagrams extends AnagramsInterface {
    */
   def wordOccurrences(w: Word): Occurrences = {
     var result = List[(Char, Int)]()
-    def wordOccurencesHelper(l:Word): Occurrences ={
+    def wordOccurencesHelper(l:Word): Occurrences = {
       val m1 = l.toSeq.groupBy(c => (c.toLower)).view.mapValues(_.unwrap)
       m1.foreach(x => { result = (x._1,x._2.length) :: result})
       result.sortBy(x => x._2)
@@ -46,7 +48,7 @@ object Anagrams extends AnagramsInterface {
   /** Converts a sentence into its character occurrence list. */
   def sentenceOccurrences(s: Sentence): Occurrences = {
     var result = List[(Char, Int)]()
-    def sentenceOccurrencesHelper(l:Sentence): Occurrences ={
+    def sentenceOccurrencesHelper(l:Sentence): Occurrences = {
       s.foreach(x => { result = wordOccurrences(x) ::: result})
       result.sortBy(x => x._2)
     }
@@ -69,10 +71,19 @@ object Anagrams extends AnagramsInterface {
    *    List(('a', 1), ('e', 1), ('t', 1)) -> Seq("ate", "eat", "tea")
    *
    */
-  lazy val dictionaryByOccurrences: Map[Occurrences, List[Word]] = ???
+  lazy val dictionaryByOccurrences: Map[Occurrences, List[Word]] = dictionary.groupBy(w => wordOccurrences(w))
+
 
   /** Returns all the anagrams of a given word. */
-  def wordAnagrams(word: Word): List[Word] = ???
+  def wordAnagrams(word: Word): List[Word] = {
+    val wrd = wordOccurrences(word)
+    val res = dictionaryByOccurrences get wrd match {
+      case Some(v) => v
+      case None => List("NotFound")
+    }
+    res.filter(w => w != word)
+
+  }
 
   /** Returns the list of all subsets of the occurrence list.
    *  This includes the occurrence itself, i.e. `List(('k', 1), ('o', 1))`
