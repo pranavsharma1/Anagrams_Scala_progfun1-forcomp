@@ -38,13 +38,21 @@ object Anagrams extends AnagramsInterface {
     def wordOccurencesHelper(l:Word): Occurrences ={
       val m1 = l.toSeq.groupBy(c => (c.toLower)).view.mapValues(_.unwrap)
       m1.foreach(x => { result = (x._1,x._2.length) :: result})
-      result
+      result.sortBy(x => x._2)
     }
     wordOccurencesHelper(w)
   }
 
   /** Converts a sentence into its character occurrence list. */
-  def sentenceOccurrences(s: Sentence): Occurrences = ???
+  def sentenceOccurrences(s: Sentence): Occurrences = {
+    var result = List[(Char, Int)]()
+    def sentenceOccurrencesHelper(l:Sentence): Occurrences ={
+      s.foreach(x => { result = wordOccurrences(x) ::: result})
+      result.sortBy(x => x._2)
+    }
+    sentenceOccurrencesHelper(s)
+
+  }
 
   /** The `dictionaryByOccurrences` is a `Map` from different occurrences to a sequence of all
    *  the words that have that occurrence count.
